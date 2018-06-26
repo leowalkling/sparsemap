@@ -16,14 +16,12 @@ class StationarySequencePotentials(nn.Module):
         assert n_states == n_states_
 
         if start is None:
-            start = Variable(transition.data.new(n_states))
-            start.data.zero_()
+            start = transition.new_zeros(n_states)
         else:
             assert start.dim() == 1 and start.size()[0] == n_states
 
         if end is None:
-            end = Variable(transition.data.new(n_states))
-            end.data.zero_()
+            end = transition.new_zeros(n_states)
         else:
             assert end.dim() == 1 and end.size()[0] == n_states
 
@@ -55,31 +53,22 @@ class SequenceSparseMarginals(_BaseSparseMarginalsAdditionals):
             Sparse posterior unary marginals: a-posteriori probabilities for
             each variable to be in each of its valid states.
         """
+        return super(SequenceSparseMarginals, self).forward(unaries, additionals)
 
-        self.n_variables, self.n_states = unaries.size()
-        u = super().forward(unaries.view(-1), additionals)
-        return u.view_as(unaries)
-
-    def backward(self, dy):
-        dy = dy.contiguous().view(-1)
-        da, dadd = super().backward(dy)
-        return da.view(self.n_variables, self.n_states), dadd
-
-    def build_factor(self):
+    def build_factor(self, n_variables, n_states):
         seq = PFactorSequence()
-        seq.initialize([self.n_states] * self.n_variables)
+        seq.initialize([n_states] * n_variables)
         return seq
 
 
 class SequenceDistanceSparseMarginals(SequenceSparseMarginals):
     def __init__(self, bandwidth, max_iter=10, verbose=False):
+        super(SequenceSparseMarginals, self).__init__(max_iter, verbose)
         self.bandwidth = bandwidth
-        self.max_iter = max_iter
-        self.verbose = verbose
 
-    def build_factor(self):
+    def build_factor(self, n_variables, n_states):
         seq = PFactorSequenceDistance()
-        seq.initialize(self.n_variables, self.n_states, self.bandwidth)
+        seq.initialize(n_variables, n_states, self.bandwidth)
         return seq
 
 
@@ -89,10 +78,10 @@ if __name__ == '__main__':
     n_states = 3
     torch.manual_seed(12)
 
-    unary = Variable(torch.randn(n_variables, n_states), requires_grad=True)
-    start = Variable(torch.randn(n_states), requires_grad=True)
-    end = Variable(torch.randn(n_states), requires_grad=True)
-    transition = Variable(torch.randn(n_states, n_states), requires_grad=True)
+    unary = torch.randn(n_variables, n_states, requires_grad=True)
+    start = torch.randn(n_states, requires_grad=True)
+    end = torch.randn(n_states, requires_grad=True)
+    transition = torch.randn(n_states, n_states, requires_grad=True)
 
     stationary_seq = StationarySequencePotentials()
     seq_marginals = SequenceSparseMarginals()
@@ -114,7 +103,7 @@ if __name__ == '__main__':
     print("With distance-based parametrization")
 
     bw = 3
-    dist_additional = Variable(torch.randn(1 + 4 * bw), requires_grad=True)
+    dist_additional = torch.randn(1 + 4 * bw, requires_grad=True)
     seq_dist_marg = SequenceDistanceSparseMarginals(bw)
     posterior = seq_dist_marg(unary, dist_additional)
     print(posterior)

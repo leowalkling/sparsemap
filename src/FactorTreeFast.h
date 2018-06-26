@@ -19,7 +19,7 @@ class FactorTreeFast : public AD3::FactorTree {
  public:
   void Initialize(int length) {
     length_ = length;
-    index_arcs_.assign(length, vector<int>(length, -1));
+    index_arcs_.assign(length, std::vector<int>(length, -1));
     int k = 0;
     for (int m = 1; m < length; m++) {
         for (int h = 0; h < length; ++h) {

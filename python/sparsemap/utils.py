@@ -31,16 +31,11 @@ def expand_with_zeros(x, rows, cols):
 
     ret = x
     if orig_cols < cols:
-        horiz = Variable(x.data.new(orig_rows, cols - orig_cols).zero_())
+        horiz = x.new_zeros((orig_rows, cols - orig_cols))
         ret = torch.cat([ret, horiz], dim=-1)
 
     if orig_rows < rows:
-        vert = Variable(x.data.new(rows - orig_rows, cols).zero_())
+        vert = x.new_zeros((rows - orig_rows, cols))
         ret = torch.cat([ret, vert], dim=0)
 
     return ret
-
-
-def zeros_like(torch_var):
-    data = torch_var.data.new(torch_var.size()).zero_()
-    return Variable(data)

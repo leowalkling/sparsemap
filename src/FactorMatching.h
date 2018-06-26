@@ -9,33 +9,29 @@
 
 #include "lapjv/lapjv.h"
 
-using AD3::GenericFactor;
-using AD3::Configuration;
-using std::vector;
-
 
 namespace sparsemap {
 
-    class FactorMatching : public GenericFactor {
+    class FactorMatching : public AD3::GenericFactor {
 
         protected:
 
         int ix(int i, int j) { return cols_ * i + j; }
 
-        vector<int>* cfg_cast(Configuration cfg) {
-            return static_cast<vector<int> *>(cfg);
+        std::vector<int>* cfg_cast(AD3::Configuration cfg) {
+            return static_cast<std::vector<int> *>(cfg);
         }
 
         public:
         FactorMatching () {}
         virtual ~FactorMatching() { ClearActiveSet(); }
 
-        void Evaluate(const vector<double> &variable_log_potentials,
-                      const vector<double> &additional_log_potentials,
-                      const Configuration configuration,
+        void Evaluate(const std::vector<double> &variable_log_potentials,
+                      const std::vector<double> &additional_log_potentials,
+                      const AD3::Configuration configuration,
                       double *value) {
 
-            const vector<int>* assigned = cfg_cast(configuration);
+            const std::vector<int>* assigned = cfg_cast(configuration);
             int j;
             *value = 0;
             for (int i = 0; i < rows_; ++i) {
@@ -45,14 +41,14 @@ namespace sparsemap {
             }
         }
 
-        void Maximize(const vector<double> &variable_log_potentials,
-                      const vector<double> &additional_log_potentials,
-                      Configuration &configuration,
+        void Maximize(const std::vector<double> &variable_log_potentials,
+                      const std::vector<double> &additional_log_potentials,
+                      AD3::Configuration &configuration,
                       double *value) {
 
             int n = rows_ > cols_ ? rows_ : cols_;
-            vector<vector<double> > byrow;
-            vector<double*> cost_ptr;
+            std::vector<std::vector<double> > byrow;
+            std::vector<double*> cost_ptr;
             byrow.resize(n);
 
             /* if needed, will pad up to square matrix with highest cost */
@@ -84,13 +80,13 @@ namespace sparsemap {
                     cost_ptr.push_back(byrow[i].data());
                 }
 
-            vector<int> x_c, y_c;
+            std::vector<int> x_c, y_c;
             x_c.reserve(n);
             y_c.reserve(n);
 
             lapjv_internal(n, cost_ptr.data(), x_c.data(), y_c.data());
 
-            vector<int> *cfg_vec = cfg_cast(configuration);
+            std::vector<int> *cfg_vec = cfg_cast(configuration);
             for (int i = 0; i < rows_; ++i) {
                 cfg_vec->push_back(x_c[i] < cols_ ? x_c[i] : -1);
             }
@@ -102,12 +98,12 @@ namespace sparsemap {
         }
 
         void UpdateMarginalsFromConfiguration(
-                const Configuration &configuration,
+                const AD3::Configuration &configuration,
                 double weight,
-                vector<double> *variable_posteriors,
-                vector<double> *additional_posteriors) {
+                std::vector<double> *variable_posteriors,
+                std::vector<double> *additional_posteriors) {
 
-            const vector<int>* assigned = cfg_cast(configuration);
+            const std::vector<int>* assigned = cfg_cast(configuration);
             int j;
             for (int i = 0; i < rows_; ++i) {
                 j = (*assigned)[i];
@@ -116,10 +112,10 @@ namespace sparsemap {
             }
         }
 
-        int CountCommonValues(const Configuration &configuration1,
-                              const Configuration &configuration2) {
-            const vector<int>* assigned1 = cfg_cast(configuration1);
-            const vector<int>* assigned2 = cfg_cast(configuration2);
+        int CountCommonValues(const AD3::Configuration &configuration1,
+                              const AD3::Configuration &configuration2) {
+            const std::vector<int>* assigned1 = cfg_cast(configuration1);
+            const std::vector<int>* assigned2 = cfg_cast(configuration2);
 
             int common = 0;
             int j1, j2;
@@ -133,10 +129,10 @@ namespace sparsemap {
             return common;
         }
 
-        bool SameConfiguration(const Configuration &configuration1,
-                               const Configuration &configuration2) {
-            const vector<int>* assigned1 = cfg_cast(configuration1);
-            const vector<int>* assigned2 = cfg_cast(configuration2);
+        bool SameConfiguration(const AD3::Configuration &configuration1,
+                               const AD3::Configuration &configuration2) {
+            const std::vector<int>* assigned1 = cfg_cast(configuration1);
+            const std::vector<int>* assigned2 = cfg_cast(configuration2);
 
             for (int i = 0; i < rows_; ++i)
                 if (! ((*assigned1)[i] == (*assigned2)[i]))
@@ -144,14 +140,14 @@ namespace sparsemap {
             return true;
         }
 
-        void DeleteConfiguration(Configuration configuration) {
-            vector<int>* assigned = cfg_cast(configuration);
+        void DeleteConfiguration(AD3::Configuration configuration) {
+            std::vector<int>* assigned = cfg_cast(configuration);
             delete assigned;
         }
 
-        Configuration CreateConfiguration() {
-            vector<int>* config = new vector<int>;
-            return static_cast<Configuration>(config);
+        AD3::Configuration CreateConfiguration() {
+            std::vector<int>* config = new std::vector<int>;
+            return static_cast<AD3::Configuration>(config);
         }
 
         void Initialize(int rows, int cols) {

@@ -11,8 +11,7 @@ def test_matching_sparse_decode():
 
     for _ in range(20):
         matcher = matching_layer.MatchingSparseMarginals(max_iter=100)
-        W = torch.randn(n_rows, n_cols)
-        W = Variable(W, requires_grad=True)
+        W = torch.randn(n_rows, n_cols, requires_grad=True)
         res = gradcheck(matcher, (W,), eps=1e-3,
                         atol=1e-3)
         assert res

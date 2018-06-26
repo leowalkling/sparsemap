@@ -10,8 +10,7 @@ def test_fasttree_sparse_decode():
     n_nodes = 5
     tsm = TreeSparseMarginalsFast(n_nodes, max_iter=1000)
     for _ in range(20):
-        W = torch.randn(n_nodes, n_nodes + 1).view(-1)
-        W = Variable(W, requires_grad=True)
+        W = torch.randn(n_nodes, n_nodes + 1, requires_grad=True).view(-1)
         res = gradcheck(tsm, (W,), eps=1e-4,
                         atol=1e-3)
         print(res)
@@ -22,7 +21,6 @@ def test_meaning_sparse_decode():
     n_nodes = 4
     w = torch.zeros(n_nodes, n_nodes + 1)
     w[2, 1] = 100
-    w = Variable(w)
     tsm = TreeSparseMarginalsFast(n_nodes, verbose=3)
     u = tsm(w.view(-1))
     for config in tsm.status['active_set']:
