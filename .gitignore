@@ -6,6 +6,9 @@ __pycache__/
 # C extensions
 *.so
 
+# Scikit-build
+python/_skbuild/
+
 # Distribution / packaging
 .Python
 build/

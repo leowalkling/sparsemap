@@ -3,7 +3,7 @@
 
 #include <iostream>
 
-#include <examples/cpp/parsing/FactorTree.h>
+#include <ad3/examples/cpp/parsing/FactorTree.h>
 
 /*
  * A simplified Tree factor

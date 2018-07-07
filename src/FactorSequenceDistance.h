@@ -1,7 +1,7 @@
 #ifndef FACTOR_SEQUENCE_DISTANCE
 #define FACTOR_SEQUENCE_DISTANCE
 #include <algorithm>
-#include <examples/cpp/dense/FactorSequence.h>
+#include <ad3/examples/cpp/dense/FactorSequence.h>
 
 
 /*

@@ -12,6 +12,9 @@
 
 namespace sparsemap {
 
+    /**
+     * A dense factor matrix for matching or path-finding problems.
+     */
     class FactorMatching : public AD3::GenericFactor {
 
         protected:
