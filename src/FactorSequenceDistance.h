@@ -24,7 +24,10 @@ class FactorSequenceDistance : public AD3::FactorSequence {
         for (int i = 0; i < length; ++i)
             offset_states_[i] = i * n_states;
 
-        /* index_edges[position][prev_state][next_state]
+        /* index_edges[position][prev_state][next_state] holds the index into additional_log_potentials_ that describes
+         * the potential for the corresponding transition.
+         * The first and last position are handled specially: At position = 0, there is only one previous state which
+         * corresponds with
          * indexes into additional_log_potentials_ which is size 2 * range + 1
          */
         index_edges_.resize(length + 1);
